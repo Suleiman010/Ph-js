@@ -5,20 +5,22 @@ const balls = [];
 
 let LEFT, TOP, RIGHT, DOWN;
 
-VELOCITY = 1;
+let FRICTION = 0.1;
 
 // create the ball class
 // the constructor has default values so you don't have to pass argument if you don't want to
 // add the created ball to the balls array
 // draw the ball
 class Ball {
-	constructor(x = 100, y = 100, r = 20, velocity = VELOCITY, isPlayer = false) {
+	constructor(x = 100, y = 100, r = 20, isPlayer = false) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
 		this.vel_x = 0;
 		this.vel_y = 0;
-		this.velocity = velocity;
+		this.acc_x = 0;
+		this.acc_y = 0;
+		this.acceleration = 0.4;
 		this.isPlayer = isPlayer;
 		balls.push(this);
 	}
@@ -30,27 +32,51 @@ class Ball {
 		ctx.stroke();
 		ctx.fill();
 	}
+	display() {
+		ctx.beginPath();
+		ctx.moveTo(this.x, this.y);
+		ctx.lineTo(this.x + this.acc_x * 100, this.y + this.acc_y * 100);
+		ctx.strokeStyle = "red";
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.moveTo(this.x, this.y);
+		ctx.lineTo(this.x + this.vel_x * 10, this.y + this.vel_y * 10);
+		ctx.strokeStyle = "blue";
+		ctx.stroke();
+	}
 }
 
 function positionChange(ball) {
 	if (LEFT) {
-		ball.vel_x = -ball.velocity;
+		ball.acc_x = -ball.acceleration;
 	}
 	if (TOP) {
-		ball.vel_y = -ball.velocity;
+		ball.acc_y = -ball.acceleration;
 	}
 	if (RIGHT) {
-		ball.vel_x = ball.velocity;
+		ball.acc_x = ball.acceleration;
 	}
 	if (DOWN) {
-		ball.vel_y = ball.velocity;
+		ball.acc_y = ball.acceleration;
 	}
+
 	if (!TOP && !DOWN) {
-		ball.vel_y = 0;
+		ball.acc_y = 0;
 	}
 	if (!RIGHT && !LEFT) {
-		ball.vel_x = 0;
+		ball.acc_x = 0;
 	}
+
+	// change in velocity
+	ball.vel_x += ball.acc_x;
+	ball.vel_y += ball.acc_y;
+
+	// friction law
+	ball.vel_x *= 1 - FRICTION;
+	ball.vel_y *= 1 - FRICTION;
+
+	// actuall position change
 	ball.x += ball.vel_x;
 	ball.y += ball.vel_y;
 }
@@ -89,13 +115,13 @@ function mainLoop() {
 		if (ball.isPlayer) {
 			moveBall(ball);
 		}
+		ball.display();
 	});
 
 	// performance wise this is better the the interval but READMORE about it
 	requestAnimationFrame(mainLoop);
 }
 
-let firstBall = new Ball(100, 100, 30, 5, true);
-let secondBall = new Ball();
+let firstBall = new Ball(100, 100, 30, true);
 
 requestAnimationFrame(mainLoop);
