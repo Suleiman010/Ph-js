@@ -1,22 +1,21 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let x = 100;
-let y = 100;
+const balls = [];
 
 let LEFT, TOP, RIGHT, DOWN;
 
-const balls = [];
+VELOCITY = 1;
 
 class Ball {
-	constructor(x, y, r) {
+	constructor(x = 100, y = 100, r = 20, isPlayer = false) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
+		this.isPlayer = isPlayer;
 		balls.push(this);
-		this.isPlayer = true;
 	}
-	drawBall(x, y, r) {
+	drawBall() {
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
 		ctx.fillStyle = "green";
@@ -26,46 +25,46 @@ class Ball {
 	}
 }
 
-function positionChange(ball, newPos) {
+function positionChange(ball) {
 	if (LEFT) {
-		ball.x -= newPos;
+		ball.x -= VELOCITY;
 	}
 	if (TOP) {
-		ball.y -= newPos;
+		ball.y -= VELOCITY;
 	}
 	if (RIGHT) {
-		ball.x += newPos;
+		ball.x += VELOCITY;
 	}
 	if (DOWN) {
-		ball.y += newPos;
+		ball.y += VELOCITY;
 	}
 }
 
 function isArrowClicked(e, isClicked) {
-	if (e.keyCode === 37) {
+	if (e.key === "ArrowLeft") {
 		LEFT = isClicked;
 	}
-	if (e.keyCode === 38) {
+	if (e.key === "ArrowUp") {
 		TOP = isClicked;
 	}
-	if (e.keyCode === 39) {
+	if (e.key === "ArrowRight") {
 		RIGHT = isClicked;
 	}
-	if (e.keyCode === 40) {
+	if (e.key === "ArrowDown") {
 		DOWN = isClicked;
 	}
 }
 
+canvas.addEventListener("keydown", function (e) {
+	isArrowClicked(e, true);
+});
+
+canvas.addEventListener("keyup", function (e) {
+	isArrowClicked(e, false);
+});
+
 function moveBall(ball) {
-	canvas.addEventListener("keydown", function (e) {
-		isArrowClicked(e, true);
-	});
-
-	canvas.addEventListener("keyup", function (e) {
-		isArrowClicked(e, false);
-	});
-
-	positionChange(ball, 2);
+	positionChange(ball);
 }
 
 function mainLoop() {
@@ -79,7 +78,7 @@ function mainLoop() {
 	requestAnimationFrame(mainLoop);
 }
 
-let firstBall = new Ball(200, 200, 20);
-let secondBall = new Ball(400, 300, 20);
+let firstBall = new Ball(100, 100, 30, true);
+let secondBall = new Ball();
 
 requestAnimationFrame(mainLoop);
