@@ -7,11 +7,18 @@ let LEFT, TOP, RIGHT, DOWN;
 
 VELOCITY = 1;
 
+// create the ball class
+// the constructor has default values so you don't have to pass argument if you don't want to
+// add the created ball to the balls array
+// draw the ball
 class Ball {
-	constructor(x = 100, y = 100, r = 20, isPlayer = false) {
+	constructor(x = 100, y = 100, r = 20, velocity = VELOCITY, isPlayer = false) {
 		this.x = x;
 		this.y = y;
 		this.r = r;
+		this.vel_x = 0;
+		this.vel_y = 0;
+		this.velocity = velocity;
 		this.isPlayer = isPlayer;
 		balls.push(this);
 	}
@@ -27,17 +34,25 @@ class Ball {
 
 function positionChange(ball) {
 	if (LEFT) {
-		ball.x -= VELOCITY;
+		ball.vel_x = -ball.velocity;
 	}
 	if (TOP) {
-		ball.y -= VELOCITY;
+		ball.vel_y = -ball.velocity;
 	}
 	if (RIGHT) {
-		ball.x += VELOCITY;
+		ball.vel_x = ball.velocity;
 	}
 	if (DOWN) {
-		ball.y += VELOCITY;
+		ball.vel_y = ball.velocity;
 	}
+	if (!TOP && !DOWN) {
+		ball.vel_y = 0;
+	}
+	if (!RIGHT && !LEFT) {
+		ball.vel_x = 0;
+	}
+	ball.x += ball.vel_x;
+	ball.y += ball.vel_y;
 }
 
 function isArrowClicked(e, isClicked) {
@@ -75,10 +90,12 @@ function mainLoop() {
 			moveBall(ball);
 		}
 	});
+
+	// performance wise this is better the the interval but READMORE about it
 	requestAnimationFrame(mainLoop);
 }
 
-let firstBall = new Ball(100, 100, 30, true);
+let firstBall = new Ball(100, 100, 30, 5, true);
 let secondBall = new Ball();
 
 requestAnimationFrame(mainLoop);
